@@ -41,7 +41,7 @@ color_palettes = {
 
 
 def draw(channels=(1, 8, 32, 64), pool=(2, 2, 1, 1), sizes=None, connections=(),
-         spacing=30, off=(50, 200), log_width=False, min_width=10, font_size=8, scale=150, scale_width=1,
+         spacing=30, off=(50, 200), log_width=False, min_width=10, sqrt_height=False, font_size=8, scale=150, scale_width=1,
          filename='output.svg', color='blue', arrow_size=0):
 
     spacings = [[spacing] if len(c) == 1 else [0,spacing] for c in channels]
@@ -85,8 +85,12 @@ def draw(channels=(1, 8, 32, 64), pool=(2, 2, 1, 1), sizes=None, connections=(),
 
         pos_sizes += [[off[0] + current_x + 0.5*width, width, off[1] + current_y]]
 
-        current_scale = current_scale // p
+        if sqrt_height:
+            current_scale = current_scale // math.sqrt(p)
+        else:
+            current_scale = current_scale // p
         current_y = (scale - current_scale) / 2
+
         current_x += width + space
 
     for i, (start, end) in enumerate(connections):
@@ -110,8 +114,8 @@ if __name__ == '__main__':
 
     parser = argparse.ArgumentParser()
 
-    parser.add_argument('channels', help="Channel sizes", type=channels, nargs='+')
-    parser.add_argument('--pool', help="Pooling", type=float, nargs='+')
+    parser.add_argument('channels', help="Channel sizes (separated by space)", type=channels, nargs='+')
+    parser.add_argument('--pool', help="Pooling (separated by space)", type=float, nargs='+')
     parser.add_argument('--sizes', help="Tensor sizes", type=int, nargs='+')
     parser.add_argument('--connections', help="Connections between layers", type=tuple_list, nargs='+', default=())
     parser.add_argument('--color', help="base color: red, green, blue or yellow", default='blue')
@@ -122,6 +126,7 @@ if __name__ == '__main__':
 
     parser.add_argument('--off', help="Offset", default=(50, 200))
     parser.add_argument('--log-width', help="flag to apply logarithm on activation widths", default=False)
+    parser.add_argument('--sqrt-height', help="flag to apply square root on activation heights", default=False)
     parser.add_argument('--scale', help="base scale", default=150)
     parser.add_argument('--scale-width', help="scale width", type=float, default=1.0)
     parser.add_argument('--min-width', help="minimal width of activations", default=10)
